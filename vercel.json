@@ -1,7 +1,5 @@
 {
-  "buildCommand": "npm install && npm run build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "framework": "vite",
-  "rootDirectory": "artifacts/mockup-sandbox"
+  "buildCommand": "npm run build --prefix artifacts/mockup-sandbox && cp -r artifacts/mockup-sandbox/dist ./dist",
+  "installCommand": "npm install --prefix artifacts/mockup-sandbox",
+  "framework": "vite"
 }
