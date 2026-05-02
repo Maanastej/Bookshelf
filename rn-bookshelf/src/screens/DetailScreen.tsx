@@ -19,7 +19,27 @@ const DetailScreen = () => {
   const { book } = route.params;
   const dispatch = useAppDispatch();
 
+  const [description, setDescription] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(false);
+
   const isSaved = useAppSelector(s => s.saved.books.some(b => b.key === book.key));
+
+  React.useEffect(() => {
+    const fetchDesc = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`https://openlibrary.org${book.key}.json`);
+        const data = await res.json();
+        const desc = data.description?.value || data.description || 'No description available.';
+        setDescription(desc);
+      } catch (e) {
+        setDescription('Failed to load description.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDesc();
+  }, [book.key]);
 
   const handleToggleSave = useCallback(() => {
     dispatch(toggleSaved(book));
@@ -74,6 +94,15 @@ const DetailScreen = () => {
           value={book.language?.slice(0, 3).join(', ')}
         />
       </View>
+
+      {/* Description */}
+      <Section title="Description">
+        {loading ? (
+          <Text style={styles.loadingText}>Loading description...</Text>
+        ) : (
+          <Text style={styles.bodyText}>{description}</Text>
+        )}
+      </Section>
 
       {/* Publishers */}
       {book.publisher && book.publisher.length > 0 && (
@@ -237,6 +266,11 @@ const styles = StyleSheet.create({
     color: '#c0c0c0',
     fontSize: 14,
     lineHeight: 22,
+  },
+  loadingText: {
+    color: '#666',
+    fontSize: 13,
+    fontStyle: 'italic',
   },
   tags: {
     flexDirection: 'row',
